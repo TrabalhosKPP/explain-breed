@@ -1,5 +1,6 @@
 function explain_breed(breed) {
-    const apiKey = "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";
+    // coloque sua api key aqui
+    const apiKey = "";
     const prompt = `Explique sobre a raça ${breed}`;
 
     fetch("https://api.openai.com/v1/engines/text-davinci-002/completions", {
