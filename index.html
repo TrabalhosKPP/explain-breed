@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <!-- sweetalert2 js -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+
+    <!-- sweetalert2 css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+
+    <!-- angular js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"
+        integrity="sha512-KZmyTq3PLx9EZl0RHShHQuXtrvdJ+m35tuOiwlcZfs/rE7NZv29ygNA8SFCkMXTnYZQK2OX0Gm2qKGfvWEtRXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- controller -->
+    <script src="controller.js"></script>
+
+</head>
+
+<body ng-app="explain-breed">
+    <div ng-controller="ExplainController" class="container">
+        <input type="text" ng-model="breed">
+
+        <button ng-click="explain_breed(breed)">Explain breed</button>
+    </div>
+    <script>
+        show_message = function(msg, type){
+            Swal.fire({
+                position:'top',
+                icon: type,
+                title: msg,
+                showConfirmButton: false,
+                toast:true,
+                timer: 1500
+            })
+        }
+    </script>
+</body>
+
+
+</html>
