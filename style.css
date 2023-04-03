@@ -11,3 +11,11 @@
     justify-content: center;
     align-items: center;
 }
+
+#webcam-container {
+    width: 100% !important;
+    height: 500px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
