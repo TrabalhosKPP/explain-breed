@@ -65,14 +65,13 @@
 
         async function init() {
             const inputFile = document.getElementById('file');
+
             if (inputFile.files.length === 0) {
+                // Use a webcam
                 const modelURL = URL + "model.json";
                 const metadataURL = URL + "metadata.json";
 
                 // load the model and metadata
-                // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-                // or files from your local hard drive
-                // Note: the pose library adds "tmImage" object to your window (window.tmImage)
                 model = await tmImage.load(modelURL, metadataURL);
                 maxPredictions = model.getTotalClasses();
 
@@ -89,62 +88,72 @@
                 for (let i = 0; i < maxPredictions; i++) { // and class labels
                     labelContainer.appendChild(document.createElement("div"));
                 }
+
             } else {
+                // Use an uploaded image file
 
-                // Adiciona um ouvinte de eventos para quando um arquivo for selecionado
-                inputField.addEventListener("change", async () => {
-                    // Obtém a URL da imagem selecionada
-                    const imageUrl = URL.createObjectURL(inputField.files[0]);
+                // Load the model and metadata
+                const modelURL = URL + "model.json";
+                const metadataURL = URL + "metadata.json";
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
 
-                    // Carrega o modelo e o metadados
-                    model = await tmImage.load(modelURL, metadataURL);
-                    maxPredictions = model.getTotalClasses();
+                // Load the image from the input file field
+                const imageUrl = URL.createObjectURL(inputFile.files[0]);
+                const image = new Image();
+                image.src = imageUrl;
 
-                    // Cria um objeto Image com a imagem selecionada
-                    const image = new Image();
-                    image.src = imageUrl;
-
-                    // Espera até que a imagem seja carregada (assíncrono)
-                    await new Promise(resolve => {
-                        image.onload = resolve;
-                    });
-
-                    // Redimensiona a imagem para 200x200 pixels
-                    const canvas = document.createElement("canvas");
-                    canvas.width = 200;
-                    canvas.height = 200;
-                    const ctx = canvas.getContext("2d");
-                    ctx.drawImage(image, 0, 0, 200, 200);
-
-                    // Passa a imagem redimensionada para o modelo fazer a inferência
-                    const prediction = await model.predict(canvas);
-
-
-                    document.getElementById("file").appendChild(image.canvas);
-                labelContainer = document.getElementById("file");
-                for (let i = 0; i < maxPredictions; i++) { // and class labels
-                    labelContainer.appendChild(document.createElement("div"));
-                }
+                // Wait until the image has loaded before processing it
+                await new Promise(resolve => {
+                    image.onload = resolve;
                 });
+
+                // Create a canvas element to hold the resized image
+                const canvas = document.createElement("canvas");
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext("2d");
+
+                // Resize the image and draw it on the canvas
+                ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
+
+                // Pass the canvas to the model to make the prediction
+                const prediction = await model.predict(canvas);
+
+                // Display the predictions on the webpage
+                const labelContainer = document.getElementById("label-container");
+                if (maxPredictions > 0) {
+                    for (let i = 0; i < maxPredictions; i++) {
+                        labelContainer.childNodes[i].innerHTML =
+                            prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                    }
+                }
             }
         }
 
         async function loop() {
-            webcam.update(); // update the webcam frame
-            // await predict();
+            if (webcam) {
+                webcam.update(); // update the webcam frame
+                await predict(webcam.canvas); // make a prediction with the webcam frame
+            }
+
             window.requestAnimationFrame(loop);
         }
 
-        // run the webcam image through the image model
-        async function predict() {
+        // run an image through the image model
+        async function predict(imageData) {
             // predict can take in an image, video or canvas html element
-            const prediction = await model.predict(image.canvas);
+            const prediction = await model.predict(imageData);
             console.log(prediction);
-            // for (let i = 0; i < maxPredictions; i++) {
-            //     const classPrediction =
-            //         prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-            //     labelContainer.childNodes[i].innerHTML = classPrediction;
-            // }
+
+            // Display the predictions on the webpage
+            const labelContainer = document.getElementById("label-container");
+            if (maxPredictions > 0) {
+                for (let i = 0; i < maxPredictions; i++) {
+                    labelContainer.childNodes[i].innerHTML =
+                        prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                }
+            }
         }
     </script>
 
