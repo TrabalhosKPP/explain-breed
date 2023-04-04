@@ -1,5 +1,5 @@
 function explain_breed(breed) {
     // coloque sua api key aqui
-    const apiKey = "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";
+    const apiKey = "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";
     
 }
